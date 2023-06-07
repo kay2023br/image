@@ -1,0 +1,37 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+# Carregando o conjunto de dados de exemplo (MNIST)
+(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+
+# Pré-processamento dos dados
+x_train = x_train.reshape(-1, 28 * 28).astype("float32") / 255.0
+x_test = x_test.reshape(-1, 28 * 28).astype("float32") / 255.0
+
+# Criando o modelo
+model = keras.Sequential([
+    layers.Dense(128, activation="relu"),
+    layers.Dense(10)
+])
+
+# Compilando o modelo
+model.compile(optimizer="adam", loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=["accuracy"])
+
+# Treinando o modelo
+model.fit(x_train, y_train, batch_size=32, epochs=5, verbose=2)
+
+# Salvando o modelo treinado
+model.save("modelo.h5")
+
+# Carregando o modelo salvo
+model = keras.models.load_model("modelo.h5")
+
+# Fazendo previsões com o modelo
+x_new = x_test[:10]
+predictions = model.predict(x_new)
+
+# Imprimindo as previsões
+for i, prediction in enumerate(predictions):
+    predicted_label = tf.argmax(prediction).numpy()
+    print("Imagem", i+1, "- Classe prevista:", predicted_label)
